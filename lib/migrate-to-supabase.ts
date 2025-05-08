@@ -1,25 +1,12 @@
-import { getSupabaseClient } from "@/lib/supabase"
-
 export async function migrateUserDataToSupabase(userId: string) {
   try {
+    // Import supabase client
+    const { supabase } = await import("@/lib/supabase")
+
     // Check if we're in a browser environment
-    if (typeof window === "undefined") {
-      console.log("Not in browser environment, skipping migration")
-      return { success: false, error: "Not in browser environment" }
-    }
+    if (typeof window !== "undefined") {
+      console.log("Migrating user data to Supabase for user:", userId)
 
-    console.log("Migrating user data to Supabase for user:", userId)
-
-    // Get the existing Supabase client
-    const supabase = getSupabaseClient()
-
-    // If the client is null, return early
-    if (!supabase) {
-      console.error("Supabase client not initialized")
-      return { success: false, error: "Supabase client not initialized" }
-    }
-
-    try {
       // First, check if the user already exists in the database
       const { data: existingUser, error: checkError } = await supabase
         .from("users")
@@ -30,11 +17,11 @@ export async function migrateUserDataToSupabase(userId: string) {
       if (checkError && checkError.code !== "PGRST116") {
         // PGRST116 is the error code for "no rows found"
         console.error("Error checking if user exists:", checkError)
-        // Don't throw, just log and continue
+        return { success: false, error: checkError }
       }
 
-      // If user doesn't exist and no error occurred, create them
-      if (!existingUser && (!checkError || checkError.code === "PGRST116")) {
+      // If user doesn't exist, create them
+      if (!existingUser) {
         // Get user data from localStorage if available
         const userData = localStorage.getItem(`mmu_genius_user_${userId}`)
         let userEmail = ""
@@ -48,22 +35,17 @@ export async function migrateUserDataToSupabase(userId: string) {
           }
         }
 
-        try {
-          const { error: insertError } = await supabase.from("users").insert([
-            {
-              id: userId,
-              email: userEmail,
-              created_at: new Date().toISOString(),
-            },
-          ])
+        const { error: insertError } = await supabase.from("users").insert([
+          {
+            id: userId,
+            email: userEmail,
+            created_at: new Date().toISOString(),
+          },
+        ])
 
-          if (insertError) {
-            console.error("Error inserting user:", insertError)
-            // Don't throw, just log and continue
-          }
-        } catch (insertCatchError) {
-          console.error("Exception during user insert:", insertCatchError)
-          // Don't throw, just log and continue
+        if (insertError) {
+          console.error("Error inserting user:", insertError)
+          return { success: false, error: insertError }
         }
       }
 
@@ -115,9 +97,9 @@ export async function migrateUserDataToSupabase(userId: string) {
       }
 
       return { success: true }
-    } catch (supabaseError) {
-      console.error("Supabase operation error:", supabaseError)
-      return { success: false, error: supabaseError }
+    } else {
+      console.log("Not in browser environment, skipping migration")
+      return { success: false, error: "Not in browser environment" }
     }
   } catch (error) {
     console.error("Error in migrateUserDataToSupabase:", error)

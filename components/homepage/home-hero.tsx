@@ -3,24 +3,11 @@
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-  Check,
-  BookOpen,
-  Brain,
-  BookCheck,
-  PencilRuler,
-  FileText,
-  MessageSquare,
-  Shield,
-  FlashlightIcon,
-  HelpCircle,
-} from "lucide-react"
+import { Check, BookOpen, Brain, BookCheck, PencilRuler, FileText, MessageSquare, Shield } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { MmuGeniusLogo } from "@/components/logo"
 import { InputSection } from "@/components/input-section"
 import { SummarySection } from "@/components/summary-section"
-import { FlashcardsSection } from "@/components/flashcards-section"
-import { QASection } from "@/components/qa-section"
 import type { ProcessedNotes } from "@/types"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
@@ -33,7 +20,6 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
   const router = useRouter()
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const heroRef = useRef<HTMLDivElement>(null)
-  const [activeSection, setActiveSection] = useState<"summary" | "flashcards" | "qa">("summary")
 
   // Initialize scroll animations
   useScrollAnimation()
@@ -150,12 +136,14 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
               </p>
             </div>
 
-            {!processedData ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-                <div className="animate-on-scroll">
-                  <InputSection onProcessComplete={handleProcessComplete} />
-                </div>
-                <div className="animate-on-scroll">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+              <div className="animate-on-scroll">
+                <InputSection onProcessComplete={handleProcessComplete} />
+              </div>
+              <div className="animate-on-scroll">
+                {processedData ? (
+                  <SummarySection summary={processedData.summary} />
+                ) : (
                   <div className="h-full flex items-center justify-center p-8 border rounded-lg bg-white dark:bg-gray-800">
                     <div className="text-center space-y-4">
                       <h3 className="text-xl font-bold">Your Summary Will Appear Here</h3>
@@ -164,76 +152,9 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
                       </p>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto mb-8">
-                  {/* Top row */}
-                  <div className="animate-on-scroll">
-                    <InputSection onProcessComplete={handleProcessComplete} />
-                  </div>
-                  <div className="animate-on-scroll">
-                    <SummarySection summary={processedData.summary} />
-                  </div>
-
-                  {/* Bottom row */}
-                  <div className="animate-on-scroll">
-                    <div className="border rounded-lg p-6 bg-white dark:bg-gray-800">
-                      <h3 className="text-xl font-bold mb-4">Study Tools</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Button
-                          onClick={() => setActiveSection("flashcards")}
-                          className={`${
-                            activeSection === "flashcards" ? "bg-study-blue" : "bg-study-purple"
-                          } hover:bg-study-blue text-white p-4 h-auto flex flex-col items-center gap-2`}
-                        >
-                          <FlashlightIcon className="h-6 w-6" />
-                          <span>Flashcards</span>
-                        </Button>
-                        <Button
-                          onClick={() => setActiveSection("qa")}
-                          className={`${
-                            activeSection === "qa" ? "bg-study-blue" : "bg-study-purple"
-                          } hover:bg-study-blue text-white p-4 h-auto flex flex-col items-center gap-2`}
-                        >
-                          <HelpCircle className="h-6 w-6" />
-                          <span>Practice Q&A</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="animate-on-scroll">
-                    <div className="border rounded-lg p-6 bg-white dark:bg-gray-800">
-                      <h3 className="text-xl font-bold mb-4">Key Points</h3>
-                      <ul className="space-y-2">
-                        {processedData.summary.keyPoints?.map((point, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <div className="mt-1 text-study-purple">•</div>
-                            <div>{point}</div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Study content based on active section */}
-                <div className="max-w-5xl mx-auto">
-                  {activeSection === "flashcards" && (
-                    <div id="flashcards-section" className="animate-on-scroll">
-                      <FlashcardsSection flashcards={processedData.flashcards || []} />
-                    </div>
-                  )}
-
-                  {activeSection === "qa" && (
-                    <div id="qa-section" className="animate-on-scroll">
-                      <QASection questions={processedData.questions || []} />
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+            </div>
           </div>
         </div>
 
@@ -278,21 +199,19 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
               </div>
 
               {/* Humaniser Tool */}
-              <div className="relative overflow-hidden rounded-xl border-2 border-study-purple transform transition-all duration-300 hover:scale-105 hover:shadow-lg animate-on-scroll">
-                <div className="absolute top-0 right-0 bg-study-purple text-white px-4 py-1 font-bold text-sm">
-                  URGENT
-                </div>
+              <div className="relative overflow-hidden rounded-xl border-2 border-red-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg animate-on-scroll">
+                <div className="absolute top-0 right-0 bg-red-600 text-white px-4 py-1 font-bold text-sm">URGENT</div>
 
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-study-purple/20 flex items-center justify-center">
-                      <MessageSquare className="h-6 w-6 text-study-purple" />
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                      <MessageSquare className="h-6 w-6 text-red-600" />
                     </div>
                     <h3 className="text-xl font-bold">Humaniser</h3>
                   </div>
 
                   <div className="mb-6">
-                    <p className="text-lg font-bold text-study-purple mb-2">🔥 Don't Risk Academic Penalties! 🔥</p>
+                    <p className="text-lg font-bold text-red-600 mb-2">🔥 Don't Risk Academic Penalties! 🔥</p>
                     <p className="text-base mb-4">
                       Universities are cracking down on AI text. Make your AI-generated assignments undetectable or face
                       serious consequences.
@@ -301,7 +220,7 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
 
                   <Button
                     onClick={() => router.push("/tools/humaniser")}
-                    className="w-full bg-study-purple hover:bg-study-blue text-white py-3"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white py-3"
                   >
                     Humanise Your Text Now
                   </Button>
@@ -309,21 +228,21 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
               </div>
 
               {/* AI Detector Tool */}
-              <div className="relative overflow-hidden rounded-xl border-2 border-study-purple transform transition-all duration-300 hover:scale-105 hover:shadow-lg animate-on-scroll">
-                <div className="absolute top-0 right-0 bg-study-purple text-white px-4 py-1 font-bold text-sm">
+              <div className="relative overflow-hidden rounded-xl border-2 border-amber-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg animate-on-scroll">
+                <div className="absolute top-0 right-0 bg-amber-500 text-black px-4 py-1 font-bold text-sm">
                   WARNING
                 </div>
 
                 <div className="p-6">
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-study-purple/20 flex items-center justify-center">
-                      <Shield className="h-6 w-6 text-study-purple" />
+                    <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center">
+                      <Shield className="h-6 w-6 text-amber-600" />
                     </div>
                     <h3 className="text-xl font-bold">AI Detector</h3>
                   </div>
 
                   <div className="mb-6">
-                    <p className="text-lg font-bold text-study-purple mb-2">❌ Plagiarism Check Won't Save You! ❌</p>
+                    <p className="text-lg font-bold text-amber-600 mb-2">❌ Plagiarism Check Won't Save You! ❌</p>
                     <p className="text-base mb-4">
                       Your professors use AI detectors on every submission. Check your work before they do or risk
                       failing your course.
@@ -332,7 +251,7 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
 
                   <Button
                     onClick={() => router.push("/tools/ai-detector")}
-                    className="w-full bg-study-purple hover:bg-study-blue text-white py-3"
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-black py-3"
                   >
                     Detect AI Content
                   </Button>
@@ -400,7 +319,6 @@ export function HomeHero({ processedData, handleProcessComplete }: HomeHeroProps
           </div>
         </div>
 
-        {/* Rest of the content remains the same */}
         {/* Our Story Section - Two Column Layout */}
         <div className="container py-16">
           <div className="text-center mb-8 animate-on-scroll">

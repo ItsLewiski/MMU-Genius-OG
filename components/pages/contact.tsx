@@ -21,60 +21,45 @@ export function Contact() {
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault()
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
 
-  if (!name || !email || !subject || !message) {
-    setError("All fields are required")
-    return
-  }
+    // Validate form
+    if (!name || !email || !subject || !message) {
+      setError("All fields are required")
+      return
+    }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  if (!emailRegex.test(email)) {
-    setError("Please enter a valid email address")
-    return
-  }
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
+      return
+    }
 
-  setIsSubmitting(true)
-  setError(null)
+    setIsSubmitting(true)
+    setError(null)
 
-  try {
-    const res = await fetch("https://formspree.io/f/xzzrgdpl", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        subject,
-        message,
-      }),
-    })
+    // Save message to global storage
+    saveContactMessage(name, email, subject, message)
 
-    const data = await res.json()
-
-    if (res.ok) {
+    // Simulate form submission
+    setTimeout(() => {
+      setIsSubmitting(false)
       setSuccess(true)
+
+      // Reset form
       setName("")
       setEmail("")
       setSubject("")
       setMessage("")
 
+      // Reset success message after 5 seconds
       setTimeout(() => {
         setSuccess(false)
       }, 5000)
-    } else {
-      setError(data?.error || "Something went wrong, please try again.")
-    }
-  } catch (err) {
-    setError("Failed to send message. Please try again later.")
-  } finally {
-    setIsSubmitting(false)
+    }, 1500)
   }
-}
-
 
   return (
     <div className="container py-8 max-w-4xl mx-auto">
@@ -213,18 +198,15 @@ export function Contact() {
           </CardContent>
         </Card>
 
-       <div className="h-[400px] rounded-lg overflow-hidden">
-  <iframe
-    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3329.074649844702!2d36.76847999999999!3d-1.3822640000000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f059ba53cc253%3A0x84f65413371bebb!2sMultimedia%20University%20of%20Kenya!5e1!3m2!1sen!2ske!4v1746622930308!5m2!1sen!2ske"
-    width="100%"
-    height="100%"
-    style={{ border: 0 }}
-    allowFullScreen={true}
-    loading="lazy"
-    referrerPolicy="no-referrer-when-downgrade"
-  ></iframe>
-</div>
-
+        <div className="h-[400px] rounded-lg overflow-hidden bg-gray-200">
+          {/* This would be a map in a real application */}
+          <div className="w-full h-full flex items-center justify-center text-gray-500">
+            <p className="text-center">
+              <MapPin className="h-8 w-8 mx-auto mb-2" />
+              Map would be displayed here
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )

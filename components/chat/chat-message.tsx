@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { ThumbsUp, ThumbsDown, RefreshCw, Copy, Pencil } from "lucide-react"
+import { ThumbsUp, ThumbsDown, RefreshCw } from "lucide-react"
 import { MmuGeniusLogo } from "@/components/logo"
 import ReactMarkdown from "react-markdown"
 
@@ -23,8 +23,6 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message, onRegenerate, onFeedback, isRegenerating, userInitial }: ChatMessageProps) {
   const [showActions, setShowActions] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editedContent, setEditedContent] = useState(message.content)
 
   // Format the message content to properly render markdown
   const formatContent = (content: string) => {
@@ -33,28 +31,6 @@ export function ChatMessage({ message, onRegenerate, onFeedback, isRegenerating,
       content = content.replace(/\*([^*]+)\*/g, "**$1**")
     }
     return content
-  }
-
-  const handleCopy = () => {
-    navigator.clipboard
-      .writeText(message.content)
-      .then(() => {
-        // Could show a toast notification here
-        console.log("Copied to clipboard")
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err)
-      })
-  }
-
-  const handleEdit = () => {
-    setIsEditing(true)
-  }
-
-  const handleSaveEdit = () => {
-    // This would need to be implemented in the parent component
-    // For now, just exit edit mode
-    setIsEditing(false)
   }
 
   return (
@@ -76,7 +52,7 @@ export function ChatMessage({ message, onRegenerate, onFeedback, isRegenerating,
           </Avatar>
         )}
 
-        <div className="flex-1 space-y-2 w-[95%]">
+        <div className="flex-1 space-y-2">
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium">{message.role === "assistant" ? "MMU Genius" : "You"}</p>
             <p className="text-xs text-muted-foreground">
@@ -93,94 +69,47 @@ export function ChatMessage({ message, onRegenerate, onFeedback, isRegenerating,
                 <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                 Regenerating response...
               </div>
-            ) : isEditing ? (
-              <div className="space-y-2">
-                <textarea
-                  value={editedContent}
-                  onChange={(e) => setEditedContent(e.target.value)}
-                  className="w-full p-2 border rounded-md"
-                  rows={4}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setIsEditing(false)}>
-                    Cancel
-                  </Button>
-                  <Button size="sm" onClick={handleSaveEdit}>
-                    Save
-                  </Button>
-                </div>
-              </div>
             ) : (
               <ReactMarkdown>{formatContent(message.content)}</ReactMarkdown>
             )}
           </div>
 
-          {message.role === "assistant" && onRegenerate && onFeedback && !isEditing && (
+          {message.role === "assistant" && onRegenerate && onFeedback && (
             <div
               className={`flex items-center gap-2 transition-opacity duration-200 ${
                 showActions || message.feedback ? "opacity-100" : "opacity-0"
               }`}
             >
+              <div className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-8 px-2 ${message.feedback === "positive" ? "bg-green-100 text-green-700" : ""}`}
+                  onClick={() => onFeedback(message.id, "positive")}
+                  disabled={isRegenerating}
+                >
+                  <ThumbsUp className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`h-8 px-2 ${message.feedback === "negative" ? "bg-red-100 text-red-700" : ""}`}
+                  onClick={() => onFeedback(message.id, "negative")}
+                  disabled={isRegenerating}
+                >
+                  <ThumbsDown className="h-4 w-4" />
+                </Button>
+              </div>
+
               <Button
                 variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
+                size="sm"
+                className="h-8 text-xs"
                 onClick={() => onRegenerate(message.id)}
                 disabled={isRegenerating}
-                title="Regenerate"
               >
-                <RefreshCw className={`h-4 w-4 ${isRegenerating ? "animate-spin" : ""}`} />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={handleCopy}
-                disabled={isRegenerating}
-                title="Copy to clipboard"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 rounded-full ${message.feedback === "positive" ? "bg-green-100 text-green-700" : ""}`}
-                onClick={() => onFeedback(message.id, "positive")}
-                disabled={isRegenerating}
-                title="Thumbs up"
-              >
-                <ThumbsUp className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-8 w-8 rounded-full ${message.feedback === "negative" ? "bg-red-100 text-red-700" : ""}`}
-                onClick={() => onFeedback(message.id, "negative")}
-                disabled={isRegenerating}
-                title="Thumbs down"
-              >
-                <ThumbsDown className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-
-          {message.role === "user" && !isEditing && (
-            <div
-              className={`flex justify-end transition-opacity duration-200 ${
-                showActions ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full"
-                onClick={handleEdit}
-                title="Edit message"
-              >
-                <Pencil className="h-4 w-4" />
+                <RefreshCw className={`h-3 w-3 mr-1 ${isRegenerating ? "animate-spin" : ""}`} />
+                Regenerate
               </Button>
             </div>
           )}

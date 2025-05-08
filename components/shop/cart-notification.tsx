@@ -1,9 +1,10 @@
 "use client"
 
-import { useEffect } from "react"
-import { Check, ShoppingCart } from "lucide-react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { ShoppingCart, CheckCircle, X } from "lucide-react"
 
 interface CartNotificationProps {
   isOpen: boolean
@@ -13,66 +14,71 @@ interface CartNotificationProps {
 
 export function CartNotification({ isOpen, onClose, productName }: CartNotificationProps) {
   const router = useRouter()
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
+      setIsVisible(true)
+      // Auto close after 5 seconds
       const timer = setTimeout(() => {
-        onClose()
+        setIsVisible(false)
+        setTimeout(onClose, 300) // Wait for animation to complete
       }, 5000)
-
       return () => clearTimeout(timer)
     }
   }, [isOpen, onClose])
 
+  const handleContinueShopping = () => {
+    setIsVisible(false)
+    setTimeout(onClose, 300) // Wait for animation to complete
+  }
+
+  const handleGoToCart = () => {
+    setIsVisible(false)
+    setTimeout(() => {
+      onClose()
+      router.push("/cart")
+    }, 300)
+  }
+
   if (!isOpen) return null
 
   return (
-    <div className="fixed top-4 right-4 z-[9999] w-full max-w-sm bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-      <div className="p-4">
-        <div className="flex items-start">
-          <div className="flex-shrink-0 bg-green-100 dark:bg-green-900 p-2 rounded-full">
-            <Check className="h-5 w-5 text-green-600 dark:text-green-300" />
-          </div>
-          <div className="ml-3 w-0 flex-1">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">Added to Cart!</p>
-            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{productName} has been added to your cart.</p>
-            <div className="mt-3 flex space-x-2">
-              <Button
-                size="sm"
-                className="bg-study-purple hover:bg-study-blue text-white"
-                onClick={() => {
-                  router.push("/cart")
-                  onClose()
-                }}
-              >
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                View Cart
-              </Button>
-              <Button size="sm" variant="outline" onClick={onClose}>
-                Continue Shopping
-              </Button>
+    <div
+      className={`fixed top-4 right-4 z-50 transition-all duration-300 ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+      }`}
+    >
+      <Card className="w-80 shadow-lg border-study-purple/20">
+        <CardContent className="p-4">
+          <div className="flex justify-between items-start mb-3">
+            <div className="flex items-center gap-2 text-study-purple">
+              <CheckCircle className="h-5 w-5" />
+              <span className="font-medium">Added to Cart</span>
             </div>
-          </div>
-          <div className="ml-4 flex-shrink-0 flex">
-            <button
-              className="bg-white dark:bg-gray-800 rounded-md inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
-              onClick={onClose}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 -mt-1 -mr-1 text-gray-500"
+              onClick={handleContinueShopping}
             >
-              <span className="sr-only">Close</span>
-              <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+              <X className="h-4 w-4" />
+            </Button>
           </div>
-        </div>
-      </div>
-      <div className="bg-green-50 dark:bg-green-900/30 h-1">
-        <div className="h-full bg-green-500 animate-shrink" style={{ animationDuration: "5s" }}></div>
-      </div>
+          <p className="text-sm mb-4">
+            <span className="font-medium">{productName}</span> has been added to your cart.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={handleContinueShopping}>
+              Continue Shopping
+            </Button>
+            <Button size="sm" className="flex-1 text-xs bg-study-purple hover:bg-study-blue" onClick={handleGoToCart}>
+              <ShoppingCart className="h-3 w-3 mr-1" />
+              Go to Cart
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

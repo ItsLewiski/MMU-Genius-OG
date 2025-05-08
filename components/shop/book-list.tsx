@@ -2,12 +2,13 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { BookModal } from "@/components/shop/book-modal"
-import { Star, ShoppingCart, AlertCircle } from "lucide-react"
+import { Star, Search, ShoppingCart, AlertCircle, Filter } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 import { useCart } from "@/components/shop/cart-context"
 import { useRouter } from "next/navigation"
@@ -19,6 +20,10 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
+import { Slider } from "@/components/ui/slider"
 import { CartNotification } from "@/components/shop/cart-notification"
 
 // Sample book data - only showing books category
@@ -115,35 +120,67 @@ const books = [
   },
 ]
 
-interface BookListProps {
-  searchQuery?: string
-  limit?: number
-  showViewAll?: boolean
-}
-
-export function BookList({ searchQuery = "", limit, showViewAll = false }: BookListProps) {
+export function BookList() {
   // All hooks must be called at the top level
   const { isAuthenticated } = useAuth()
   const { addToCart } = useCart()
   const router = useRouter()
 
+  const [searchTerm, setSearchTerm] = useState("")
   const [selectedBook, setSelectedBook] = useState<any>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [filteredBooksState, setFilteredBooksState] = useState(books)
+  const [filteredBooks, setFilteredBooks] = useState(books)
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+
+  // Filter states
+  const [selectedAuthors, setSelectedAuthors] = useState<string[]>([])
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000])
+  const [sortBy, setSortBy] = useState<string>("featured")
+
   const [showCartNotification, setShowCartNotification] = useState(false)
   const [addedProductName, setAddedProductName] = useState("")
 
-  // Filter books based on search query
-  const filteredBooks = books.filter(
-    (book) =>
-      book.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.description.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+  // Get unique authors for filter
+  const authors = Array.from(new Set(books.map((book) => book.author)))
 
-  // Apply limit if provided
-  const displayedBooks = limit ? filteredBooks.slice(0, limit) : filteredBooks
+  // Price range for filter
+  const minPrice = Math.min(...books.map((book) => book.price))
+  const maxPrice = Math.max(...books.map((book) => book.price))
+
+  // Apply filters and search
+  useEffect(() => {
+    let results = [...books]
+
+    // Apply search term
+    if (searchTerm) {
+      results = results.filter(
+        (book) =>
+          book.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          book.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          book.author.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    }
+
+    // Apply author filter
+    if (selectedAuthors.length > 0) {
+      results = results.filter((book) => selectedAuthors.includes(book.author))
+    }
+
+    // Apply price range filter
+    results = results.filter((book) => book.price >= priceRange[0] && book.price <= priceRange[1])
+
+    // Apply sorting
+    if (sortBy === "price-low") {
+      results.sort((a, b) => a.price - b.price)
+    } else if (sortBy === "price-high") {
+      results.sort((a, b) => b.price - a.price)
+    } else if (sortBy === "rating") {
+      results.sort((a, b) => b.rating - a.rating)
+    }
+
+    setFilteredBooks(results)
+  }, [searchTerm, selectedAuthors, priceRange, sortBy])
 
   const handleBookClick = (book: any) => {
     setSelectedBook(book)
@@ -170,6 +207,10 @@ export function BookList({ searchQuery = "", limit, showViewAll = false }: BookL
 
   const formatPrice = (price: number) => {
     return `KSh ${price.toLocaleString()}`
+  }
+
+  const toggleAuthorFilter = (author: string) => {
+    setSelectedAuthors((prev) => (prev.includes(author) ? prev.filter((a) => a !== author) : [...prev, author]))
   }
 
   // Render star ratings
@@ -201,25 +242,128 @@ export function BookList({ searchQuery = "", limit, showViewAll = false }: BookL
     return stars
   }
 
-  const handleViewAll = () => {
-    router.push("/shop?category=books")
-  }
-
   return (
     <div className="container py-8">
-      {/* Results count */}
-      {!showViewAll && (
-        <div className="mb-4">
-          <h1 className="text-2xl font-bold mb-2 dark:text-white">Books</h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {displayedBooks.length} results {searchQuery ? `for "${searchQuery}"` : ""}
-          </p>
+      {/* Header with search */}
+      <div className="bg-study-purple dark:bg-study-purple/80 text-white p-4 rounded-md mb-6">
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="flex-1 w-full">
+            <div className="flex">
+              <div className="relative flex-1">
+                <Input
+                  type="text"
+                  placeholder="Search books..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-l-md text-black dark:text-white dark:bg-gray-800 dark:border-gray-700 w-full bg-white"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
+              </div>
+              <Button className="rounded-l-none bg-study-blue hover:bg-study-blue/80 text-white">
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            className="text-white border-white hover:bg-white/20 w-full md:w-auto"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Filters
+          </Button>
         </div>
-      )}
+
+        {/* Filter options */}
+        {isFilterOpen && (
+          <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-md text-black dark:text-white">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Author filter */}
+              <div>
+                <h3 className="font-medium mb-2">Author</h3>
+                <div className="space-y-2">
+                  {authors.map((author) => (
+                    <div key={author} className="flex items-center">
+                      <Checkbox
+                        id={`author-${author}`}
+                        checked={selectedAuthors.includes(author)}
+                        onCheckedChange={() => toggleAuthorFilter(author)}
+                      />
+                      <Label htmlFor={`author-${author}`} className="ml-2 text-sm font-normal">
+                        {author}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price range filter */}
+              <div>
+                <h3 className="font-medium mb-2">Price Range</h3>
+                <div className="px-2">
+                  <Slider
+                    defaultValue={[minPrice, maxPrice]}
+                    min={minPrice}
+                    max={maxPrice}
+                    step={50}
+                    value={priceRange}
+                    onValueChange={(value) => setPriceRange(value as [number, number])}
+                    className="my-6"
+                  />
+                  <div className="flex justify-between text-sm">
+                    <span>{formatPrice(priceRange[0])}</span>
+                    <span>{formatPrice(priceRange[1])}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sort options */}
+              <div>
+                <h3 className="font-medium mb-2">Sort By</h3>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="featured">Featured</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                    <SelectItem value="rating">Highest Rated</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-4 space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSelectedAuthors([])
+                  setPriceRange([minPrice, maxPrice])
+                  setSortBy("featured")
+                }}
+              >
+                Reset Filters
+              </Button>
+              <Button className="bg-study-purple hover:bg-study-blue text-white" onClick={() => setIsFilterOpen(false)}>
+                Apply Filters
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Results count */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold mb-2 dark:text-white">Books</h1>
+        <p className="text-sm text-gray-600 dark:text-gray-400">
+          {filteredBooks.length} results {searchTerm ? `for "${searchTerm}"` : ""}
+        </p>
+      </div>
 
       {/* Book grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {displayedBooks.map((book) => (
+        {filteredBooks.map((book) => (
           <Card
             key={book.id}
             className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-gray-200 dark:border-gray-700 dark:bg-gray-800"
@@ -275,21 +419,8 @@ export function BookList({ searchQuery = "", limit, showViewAll = false }: BookL
         ))}
       </div>
 
-      {/* View All button */}
-      {showViewAll && filteredBooks.length > limit! && (
-        <div className="flex justify-center mt-6">
-          <Button
-            onClick={handleViewAll}
-            variant="outline"
-            className="border-study-purple text-study-purple hover:bg-study-purple/10"
-          >
-            View All Books
-          </Button>
-        </div>
-      )}
-
       {/* Empty state */}
-      {displayedBooks.length === 0 && (
+      {filteredBooks.length === 0 && (
         <div className="text-center py-12">
           <p className="text-xl font-medium mb-2 dark:text-white">No books found</p>
           <p className="text-gray-600 dark:text-gray-400">Try adjusting your search criteria</p>
@@ -304,6 +435,7 @@ export function BookList({ searchQuery = "", limit, showViewAll = false }: BookL
           onClose={() => setIsModalOpen(false)}
           onAddToCart={handleAddToCart}
           formatPrice={formatPrice}
+          renderRating={renderRating}
         />
       )}
 
@@ -338,7 +470,6 @@ export function BookList({ searchQuery = "", limit, showViewAll = false }: BookL
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       {/* Cart notification */}
       <CartNotification
         isOpen={showCartNotification}

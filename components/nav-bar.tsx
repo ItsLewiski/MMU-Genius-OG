@@ -70,17 +70,14 @@ export function NavBar({ activeTab, setActiveTab }: NavBarProps) {
 
   return (
     <nav
-      className={cn(
-        "border-b transition-all duration-300 z-50 bg-background sticky top-0 w-full",
-        scrolled && "shadow-md",
-      )}
+      className={cn("border-b transition-all duration-300 z-50 bg-background sticky top-0", scrolled && "shadow-md")}
     >
-      <div className="container flex h-16 items-center justify-between w-full px-4 md:px-6">
+      <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           {/* Increased logo size by 1.5x (from 48 to 60) */}
           <MmuGeniusLogo width={60} height={60} className="mr-1" priority responsive />
           <span
-            className="text-xl font-bold bg-gradient-to-r from-study-blue to-study-purple bg-clip-text text-transparent cursor-pointer whitespace-nowrap"
+            className="text-xl font-bold bg-gradient-to-r from-study-blue to-study-purple bg-clip-text text-transparent cursor-pointer"
             onClick={() => router.push("/")}
           >
             MMU Genius
@@ -136,24 +133,26 @@ export function NavBar({ activeTab, setActiveTab }: NavBarProps) {
         </div>
       </div>
 
-      {/* Mobile navigation - ensure it's full width */}
-      <div className="md:hidden border-t fixed bottom-0 left-0 right-0 bg-background z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.1)] w-full">
-        <div className="flex justify-between py-2 px-4 w-full">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <Button
-                key={tab.id}
-                variant="ghost"
-                size="sm"
-                className={cn("flex flex-col items-center gap-1 h-auto py-2", activeTab === tab.id && "bg-muted")}
-                onClick={() => handleTabClick(tab.id)}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-xs">{tab.label}</span>
-              </Button>
-            )
-          })}
+      {/* Mobile navigation */}
+      <div className="md:hidden border-t fixed bottom-0 left-0 right-0 bg-background z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.1)]">
+        <div className="container flex justify-between py-2">
+          {tabs
+            .filter((tab) => tab.id !== "tools" && tab.id !== "products")
+            .map((tab) => {
+              const Icon = tab.icon
+              return (
+                <Button
+                  key={tab.id}
+                  variant="ghost"
+                  size="sm"
+                  className={cn("flex flex-col items-center gap-1 h-auto py-2", activeTab === tab.id && "bg-muted")}
+                  onClick={() => handleTabClick(tab.id)}
+                >
+                  <Icon className="h-4 w-4" />
+                  <span className="text-xs">{tab.label}</span>
+                </Button>
+              )
+            })}
 
           {isAuthenticated ? (
             <Button

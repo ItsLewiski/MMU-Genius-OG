@@ -20,26 +20,8 @@
   }
 }
 
-/* Add these styles to ensure the footer is always at the bottom */
 body {
   color: rgb(var(--foreground-rgb));
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Ensure the footer is always at the bottom */
-#__next,
-.layout-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
 }
 
 @layer base {
@@ -507,21 +489,4 @@ main {
 .dark .text-yellow-200,
 .dark .text-yellow-300 {
   color: rgba(254, 240, 138, 1); /* Brighter yellow text in dark mode */
-}
-
-@layer utilities {
-  .animate-shrink {
-    animation-name: shrink;
-    animation-timing-function: linear;
-    animation-fill-mode: forwards;
-  }
-
-  @keyframes shrink {
-    from {
-      width: 100%;
-    }
-    to {
-      width: 0%;
-    }
-  }
 }

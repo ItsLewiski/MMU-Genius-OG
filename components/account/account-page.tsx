@@ -68,33 +68,19 @@ export function AccountPage() {
     const fetchData = async () => {
       try {
         // Attempt to migrate data from localStorage to Supabase
-        try {
-          await migrateUserDataToSupabase(user.id)
-        } catch (migrationError) {
-          console.error("Error during data migration, continuing with local data:", migrationError)
-          // Continue execution even if migration fails
-        }
+        await migrateUserDataToSupabase(user.id)
 
-        // Get user activities from Supabase or fallback to local storage
-        let userActivities = []
-        try {
-          userActivities = await getUserActivities(user.id)
-        } catch (activitiesError) {
-          console.error("Error fetching user activities:", activitiesError)
-          // Fallback to empty array
-        }
+        // Get user activities from Supabase
+        const userActivities = await getUserActivities(user.id)
         setActivities(userActivities)
 
-        // Get user goals from Supabase or fallback to local storage
-        let userGoals = []
-        try {
-          userGoals = await getUserGoals(user.id)
-        } catch (goalsError) {
-          console.error("Error fetching user goals:", goalsError)
-          // Fallback to empty array
-        }
+        // Get user goals from Supabase
+        const userGoals = await getUserGoals(user.id)
         setGoals(userGoals)
         setCompletedGoals(userGoals.filter((goal) => goal.completed).length)
+
+        // Load user score and progress from Supabase
+        // This would be handled by the auth context in a full implementation
 
         // For demo purposes, generate some progress history
         const demoHistory = generateDemoProgressHistory()
@@ -107,14 +93,6 @@ export function AccountPage() {
         setVisitCount(5 + Math.floor(Math.random() * 10)) // Random visit count for demo
       } catch (error) {
         console.error("Error fetching user data:", error)
-        // Set default values to ensure UI doesn't break
-        setActivities([])
-        setGoals([])
-        setCompletedGoals(0)
-        setProgressHistory(generateDemoProgressHistory())
-        setUserScore(0)
-        setUserProgress(0)
-        setVisitCount(1)
       }
     }
 

@@ -119,7 +119,7 @@ export default function Home() {
               </TabsContent>
 
               <TabsContent value="flashcards" className="mt-0">
-                <div id="flashcards-section" className="border rounded-lg p-6 bg-card">
+                <div className="border rounded-lg p-6 bg-card">
                   {flashcards.length > 0 ? (
                     <FlashcardsSection flashcards={flashcards} onUpdateFlashcards={handleUpdateFlashcards} />
                   ) : (
@@ -134,7 +134,7 @@ export default function Home() {
               </TabsContent>
 
               <TabsContent value="qa" className="mt-0">
-                <div id="qa-section" className="border rounded-lg p-6 bg-card">
+                <div className="border rounded-lg p-6 bg-card">
                   {processedData?.questions ? (
                     <QASection questions={processedData.questions} />
                   ) : (

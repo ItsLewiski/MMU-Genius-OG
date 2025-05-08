@@ -22,7 +22,7 @@ export function About() {
   const teamMembers = [
     {
       name: "Lewiski",
-      role: "CEO & Co-Founder",
+      role: "CEO & Founder",
       image: "/assets/images/team/founder.png",
       bio: "As a Software Engineering student at Multimedia University, I experienced firsthand the challenges of effective studying and knowledge retention. This inspired me to create a tool that would help students like me study more efficiently and effectively. My vision is to make quality education more accessible and to empower students with the tools they need to succeed in their academic journey and beyond.",
     },

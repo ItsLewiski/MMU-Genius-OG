@@ -36,8 +36,3 @@ export interface ProcessedNotes {
   flashcards: Flashcard[]
   questions: Question[]
 }
-
-export interface QA {
-  question: string
-  answer: string
-}

@@ -1,6 +1,15 @@
 import type React from "react"
+import "./globals.css"
 import type { Metadata } from "next"
-import ClientComponent from "./client"
+import { Inter } from "next/font/google"
+import { WebsiteStructuredData, OrganizationStructuredData } from "./structured-data"
+import { Analytics } from "@vercel/analytics/react"
+import { AuthProvider } from "@/contexts/auth-context"
+import { ThemeProvider } from "@/components/theme-provider"
+import { Suspense } from "react"
+import { AIAssistant } from "@/components/ai-assistant"
+
+const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "MMU Genius | AI-Powered Study Tools for Students",
@@ -44,8 +53,27 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <ClientComponent>{children}</ClientComponent>
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="canonical" href="https://mmugenius.vercel.app" />
+        <WebsiteStructuredData />
+        <OrganizationStructuredData />
+        <meta name="theme-color" content="#5B7CFA" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="MMU Genius" />
+        <link rel="apple-touch-icon" href="/favicon.png" />
+      </head>
+      <body className={inter.className}>
+        <ThemeProvider>
+          <AuthProvider>
+            <Suspense>{children}</Suspense>
+            <AIAssistant />
+          </AuthProvider>
+        </ThemeProvider>
+        <Analytics />
+      </body>
+    </html>
+  )
 }
-
-
-import './globals.css'

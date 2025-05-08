@@ -11,9 +11,8 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, activeTab = "home", setActiveTab = () => {} }: PageLayoutProps) {
-  // Add a wrapper div with flex layout to ensure footer is at the bottom
   return (
-    <div className="layout-wrapper flex flex-col min-h-screen">
+    <div className="min-h-screen flex flex-col">
       <NavBar activeTab={activeTab} setActiveTab={setActiveTab} />
       <main className="flex-1">{children}</main>
       <Footer />

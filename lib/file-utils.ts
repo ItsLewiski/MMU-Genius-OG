@@ -1,100 +1,85 @@
 /**
- * Extracts text content from a file
+ * Utility functions for file handling and text extraction
+ */
+
+/**
+ * Extracts text from various file types
+ * @param file The file to extract text from
+ * @returns Promise resolving to the extracted text
  */
 export async function extractTextFromFile(file: File): Promise<string> {
+  // For text files, simply read as text
+  if (file.type === "text/plain") {
+    return await readTextFile(file)
+  }
+
+  // For PDF files
+  else if (file.type === "application/pdf") {
+    return "PDF extraction is temporarily disabled. Please copy and paste the text manually."
+  }
+
+  // For Word documents
+  else if (
+    file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+    file.type === "application/msword"
+  ) {
+    return "Word document extraction is temporarily disabled. Please copy and paste the text manually."
+  }
+
+  throw new Error(`Unsupported file type: ${file.type}`)
+}
+
+/**
+ * Reads a text file
+ */
+async function readTextFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-
-    reader.onload = (event) => {
-      if (!event.target || typeof event.target.result !== "string") {
-        reject(new Error("Failed to read file content"))
-        return
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        resolve(e.target.result as string)
+      } else {
+        reject(new Error("Failed to read text file"))
       }
-      resolve(event.target.result)
     }
-
-    reader.onerror = () => {
-      reject(new Error("Error reading file"))
-    }
-
+    reader.onerror = () => reject(new Error("Error reading text file"))
     reader.readAsText(file)
   })
 }
 
 /**
- * Truncates text to a specified maximum length
+ * Truncates text to a specified length, trying to break at sentence boundaries
  */
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text
 
-  // Try to truncate at a sentence boundary
-  const lastSentence = text.substring(0, maxLength).lastIndexOf(".")
-  if (lastSentence > maxLength * 0.8) {
-    return text.substring(0, lastSentence + 1)
+  // Try to find a sentence boundary near the maxLength
+  const breakPoint = text.lastIndexOf(".", maxLength)
+  if (breakPoint > maxLength * 0.8) {
+    return text.substring(0, breakPoint + 1)
   }
 
-  // Try to truncate at a paragraph boundary
-  const lastParagraph = text.substring(0, maxLength).lastIndexOf("\n\n")
-  if (lastParagraph > maxLength * 0.7) {
-    return text.substring(0, lastParagraph)
-  }
-
-  // Truncate at a word boundary
-  const lastSpace = text.substring(0, maxLength).lastIndexOf(" ")
-  if (lastSpace > 0) {
-    return text.substring(0, lastSpace) + "..."
-  }
-
-  // Just truncate at the max length if all else fails
+  // If no good sentence boundary, just cut at maxLength
   return text.substring(0, maxLength) + "..."
 }
 
 /**
- * Checks if a file exceeds a specified size limit in MB
+ * Checks if a file is too large
+ * @param file The file to check
+ * @param maxSizeMB Maximum size in MB
+ * @returns Boolean indicating if the file is too large
  */
-export function isFileTooLarge(file: File, maxSizeMB: number): boolean {
-  const maxSizeBytes = maxSizeMB * 1024 * 1024
-  return file.size > maxSizeBytes
+export function isFileTooLarge(file: File, maxSizeMB = 5): boolean {
+  return file.size > maxSizeMB * 1024 * 1024
 }
 
 /**
- * Formats file size in a human-readable format
+ * Gets a human-readable file size
+ * @param bytes File size in bytes
+ * @returns Formatted file size string
  */
 export function formatFileSize(bytes: number): string {
   if (bytes < 1024) return bytes + " bytes"
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB"
-  return (bytes / (1024 * 1024)).toFixed(1) + " MB"
-}
-
-/**
- * Validates a file type against a list of allowed types
- */
-export function isValidFileType(file: File, allowedTypes: string[]): boolean {
-  return allowedTypes.includes(file.type)
-}
-
-/**
- * Gets the file extension from a file name
- */
-export function getFileExtension(fileName: string): string {
-  return fileName.split(".").pop()?.toLowerCase() || ""
-}
-
-/**
- * Safely handles file operations with error catching
- */
-export async function safeFileOperation<T>(
-  operation: () => Promise<T>,
-  errorHandler?: (error: Error) => void,
-): Promise<T | null> {
-  try {
-    return await operation()
-  } catch (error) {
-    if (errorHandler && error instanceof Error) {
-      errorHandler(error)
-    } else {
-      console.error("File operation error:", error)
-    }
-    return null
-  }
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB"
+  else return (bytes / 1048576).toFixed(1) + " MB"
 }
