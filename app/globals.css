@@ -1,0 +1,527 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --study-purple: 139, 92, 246;
+  --study-blue: 59, 130, 246;
+  --study-accent: 249, 115, 22;
+  --study-accent2: 16, 185, 129;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+/* Add these styles to ensure the footer is always at the bottom */
+body {
+  color: rgb(var(--foreground-rgb));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure the footer is always at the bottom */
+#__next,
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 48%;
+  }
+
+  /* Add these styles to ensure dark text in light mode */
+  :root {
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  .light {
+    --foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --muted-foreground: 215.4 16.3% 36.9%;
+  }
+
+  /* Ensure text is dark in light mode */
+  .light .text-foreground {
+    color: hsl(222.2 84% 4.9%);
+  }
+
+  .light .text-muted-foreground {
+    color: hsl(215.4 16.3% 36.9%);
+  }
+
+  .light .card-foreground {
+    color: hsl(222.2 84% 4.9%);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Improved light theme visibility */
+.light .bg-white {
+  @apply bg-gray-50;
+}
+
+.light .border {
+  @apply border-gray-300;
+}
+
+.light .card {
+  @apply shadow-sm;
+}
+
+.light .bg-muted {
+  @apply bg-gray-100;
+}
+
+/* Ensure text contrast in light mode */
+.light p,
+.light h1,
+.light h2,
+.light h3,
+.light h4,
+.light h5,
+.light h6,
+.light span,
+.light li {
+  color: hsl(var(--foreground));
+}
+
+.light .text-muted-foreground {
+  color: hsl(215.4 16.3% 36.9%);
+}
+
+/* Scroll animations */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Custom animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse-slow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.8));
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 1s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease-out forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.animate-rotate {
+  animation: rotate 20s linear infinite;
+}
+
+.animate-glow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+/* Hero logo specific styles */
+.hero-logo {
+  filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+  animation: glow 3s ease-in-out infinite, float 6s ease-in-out infinite;
+  transform-origin: center;
+  z-index: 2;
+}
+
+/* Logo container for Our Story section */
+.story-logo-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Ensure consistent logo styling across sections */
+.logo-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  z-index: 1;
+}
+
+.logo-container::before {
+  content: "";
+  position: absolute;
+  width: 140%;
+  height: 140%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 70%);
+  z-index: -1;
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+/* Enhanced team member card styling */
+.team-member-card {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.team-member-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.team-member-image {
+  border: 3px solid transparent;
+  background-origin: border-box;
+  background-clip: content-box, border-box;
+  background-image: linear-gradient(to right, #fff, #fff), linear-gradient(to right, #5b7cfa, #9d7cfa);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.team-member-card:hover .team-member-image {
+  transform: scale(1.05);
+}
+
+/* Mobile app download button */
+.app-download-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .app-download-btn {
+    display: flex;
+  }
+}
+
+/* Responsive chat container for Ask Anything tool */
+.chat-container {
+  min-height: 400px;
+  max-height: 60vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .chat-container {
+    width: 100%;
+    max-height: 50vh;
+    padding: 0.75rem;
+  }
+
+  .chat-container .prose {
+    font-size: 0.875rem; /* Smaller font size on mobile */
+  }
+
+  .chat-container .flex {
+    max-width: 100% !important;
+  }
+
+  .chat-container .rounded-lg {
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Optimize message bubbles for mobile */
+  .chat-message {
+    max-width: 90%;
+  }
+
+  .chat-message-user {
+    max-width: 90%;
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .chat-container {
+    width: 100%;
+    max-height: 50vh;
+  }
+
+  .chat-message,
+  .chat-message-user {
+    max-width: 95% !important;
+  }
+}
+
+/* Responsive logo styling */
+.mmu-genius-logo-responsive {
+  transition: all 0.3s ease;
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .mmu-genius-logo-responsive {
+    transform: scale(1);
+    min-width: 80px !important;
+    min-height: 80px !important;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .mmu-genius-logo-responsive {
+    transform: scale(1);
+    min-width: 100px !important;
+    min-height: 100px !important;
+  }
+}
+
+/* Ensure logo is visible on dark mode */
+.dark .mmu-genius-logo img,
+.dark .mmu-genius-logo-responsive img {
+  filter: brightness(1.1);
+}
+
+/* Enhanced dark mode styles */
+.dark a:hover {
+  color: white !important;
+}
+
+.dark button:hover {
+  color: white;
+}
+
+.dark p,
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6,
+.dark span,
+.dark li {
+  color: white;
+}
+
+.dark .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .hover\:bg-muted:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Add these styles to ensure text is visible in dark mode */
+.dark .text-foreground {
+  color: white !important;
+}
+
+.dark .alert-title,
+.dark .alert-description {
+  color: white !important;
+}
+
+/* Ensure proper contrast for alerts in dark mode */
+.dark .alert {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .alert-destructive {
+  background-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+@media (max-width: 768px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-member-card .flex-col-reverse {
+    flex-direction: column;
+  }
+}
+
+/* Add space at the bottom of the page to account for the mobile navigation */
+@media (max-width: 768px) {
+  main {
+    padding-bottom: 4rem;
+  }
+}
+
+/* Custom alert styles for dark mode visibility */
+.dark .border-yellow-400 {
+  border-color: rgba(250, 204, 21, 0.5); /* More visible border in dark mode */
+}
+
+.dark .bg-yellow-900\/30 {
+  background-color: rgba(113, 63, 18, 0.4); /* Slightly more opaque background in dark mode */
+}
+
+.dark .text-yellow-200,
+.dark .text-yellow-300 {
+  color: rgba(254, 240, 138, 1); /* Brighter yellow text in dark mode */
+}
+
+@layer utilities {
+  .animate-shrink {
+    animation-name: shrink;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes shrink {
+    from {
+      width: 100%;
+    }
+    to {
+      width: 0%;
+    }
+  }
+}

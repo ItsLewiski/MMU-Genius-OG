@@ -1,0 +1,38 @@
+.mmu-genius-logo {
+  display: inline-block;
+  position: relative;
+}
+
+.mmu-genius-logo img,
+.mmu-genius-logo-responsive img {
+  object-fit: contain;
+}
+
+/* Responsive logo styling */
+.mmu-genius-logo-responsive {
+  transition: all 0.3s ease;
+}
+
+/* Mobile optimization */
+@media (max-width: 640px) {
+  .mmu-genius-logo-responsive {
+    transform: scale(0.9);
+    min-width: 32px !important;
+    min-height: 32px !important;
+  }
+}
+
+/* Tablet optimization */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .mmu-genius-logo-responsive {
+    transform: scale(0.95);
+    min-width: 36px !important;
+    min-height: 36px !important;
+  }
+}
+
+/* Ensure logo is visible on dark mode */
+.dark .mmu-genius-logo img,
+.dark .mmu-genius-logo-responsive img {
+  filter: brightness(1.1);
+}
